@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Runner Game</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #111;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        #game {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            min-height: 400px;
+            overflow: hidden;
+            background: linear-gradient(
+                to bottom,
+                #87ceeb 0%,
+                #cceeff 65%,
+                #8fd16a 65%,
+                #6dbb4d 100%
+            );
+        }
+
+        /* Sky decoration */
+        .cloud {
+            position: absolute;
+            width: 100px;
+            height: 35px;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: "";
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .cloud::before {
+            width: 45px;
+            height: 45px;
+            left: 15px;
+            top: -20px;
+        }
+
+        .cloud::after {
+            width: 55px;
+            height: 55px;
+            right: 10px;
+            top: -25px;
+        }
+
+        .cloud-1 {
+            top: 15%;
+            left: 10%;
+        }
+
+        .cloud-2 {
+            top: 25%;
+            left: 65%;
+            transform: scale(0.7);
+        }
+
+        /* Game area */
+        #ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            border-top: 5px solid #4d8e35;
+        }
+
+        #player {
+            position: absolute;
+            left: 12%;
+            bottom: 35%;
+            width: 45px;
+            height: 60px;
+            background: #e63946;
+            border-radius: 12px 12px 8px 8px;
+            z-index: 5;
+        }
+
+        #player::before {
+            content: "";
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #ffd6a5;
+            border-radius: 50%;
+            top: -25px;
+            left: 8px;
+        }
+
+        #player::after {
+            content: "";
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #111;
+            border-radius: 50%;
+            top: -12px;
+            right: 10px;
+        }
+
+        /* Obstacle */
+        .obstacle {
+            position: absolute;
+            bottom: 35%;
+            width: 35px;
+            height: 55px;
+            background: #333;
+            border-radius: 6px;
+            z-index: 4;
+        }
+
+        /* Score */
+        #score {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #111;
+            z-index: 10;
+        }
+
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 25px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #111;
+            z-index: 10;
+        }
+
+        /* Start/Game Over screen */
+        #screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 20;
+        }
+
+        .panel {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            min-width: 280px;
+        }
+
+        .panel h1 {
+            margin-bottom: 15px;
+        }
+
+        .panel p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        button {
+            border: none;
+            padding: 12px 25px;
+            background: #e63946;
+            color: white;
+            font-size: 17px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #c92f3b;
+        }
+
+        /* Mobile controls */
+        #jumpButton {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            z-index: 15;
+            padding: 15px 25px;
+            border-radius: 50px;
+            background: rgba(0, 0, 0, 0.65);
+            color: white;
+            border: 2px solid white;
+            font-weight: bold;
+        }
+
+        @media (min-width: 800px) {
+            #jumpButton {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+
+    <div id="title">RUNNER</div>
+    <div id="score">Score: 0</div>
+
+    <div id="player"></div>
+
+    <div id="ground"></div>
+
+    <button id="jumpButton">JUMP</button>
+
+    <div id="screen">
+        <div class="panel">
+            <h1 id="screenTitle">Runner Game</h1>
+            <p id="screenText">
+                Press Start and jump over the obstacles.
+            </p>
+            <button id="startButton">START GAME</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    const game = document.getElementById("game");
+    const player = document.getElementById("player");
+    const scoreText = document.getElementById("score");
+
+    const screen = document.getElementById("screen");
+    const screenTitle = document.getElementById("screenTitle");
+    const screenText = document.getElementById("screenText");
+    const startButton = document.getElementById("startButton");
+    const jumpButton = document.getElementById("jumpButton");
+
+    let gameRunning = false;
+    let score = 0;
+
+    let playerY = 0;
+    let velocityY = 0;
+
+    let gravity = 0.8;
+    let jumpPower = 15;
+
+    let gameSpeed = 6;
+
+    let obstacleTimer = 0;
+    let lastTime = 0;
+
+    let obstacles = [];
+
+    /*
+        START GAME
+    */
+    function startGame() {
+
+        gameRunning = true;
+
+        score = 0;
+        playerY = 0;
+        velocityY = 0;
+
+        gameSpeed = 6;
+        obstacleTimer = 0;
+
+        scoreText.textContent = "Score: 0";
+
+        obstacles.forEach(obstacle => obstacle.remove());
+        obstacles = [];
+
+        screen.style.display = "none";
+
+        lastTime = performance.now();
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    /*
+        PLAYER JUMP
+    */
+    function jump() {
+
+        if (!gameRunning) return;
+
+        if (playerY === 0) {
+            velocityY = jumpPower;
+        }
+    }
+
+    /*
+        CREATE OBSTACLE
+    */
+    function createObstacle() {
+
+        const obstacle = document.createElement("div");
+
+        obstacle.className = "obstacle";
+
+        obstacle.style.left = game.offsetWidth + "px";
+
+        game.appendChild(obstacle);
+
+        obstacles.push({
+            element: obstacle,
+            x: game.offsetWidth
+        });
+    }
+
+    /*
+        COLLISION CHECK
+    */
+    function checkCollision(playerRect, obstacleRect) {
+
+        return !(
+            playerRect.right < obstacleRect.left ||
+            playerRect.left > obstacleRect.right ||
+            playerRect.bottom < obstacleRect.top ||
+            playerRect.top > obstacleRect.bottom
+        );
+    }
+
+    /*
+        GAME OVER
+    */
+    function gameOver() {
+
+        gameRunning = false;
+
+        screen.style.display = "flex";
+
+        screenTitle.textContent = "Game Over";
+
+        screenText.textContent =
+            "Your score: " + Math.floor(score);
+
+        startButton.textContent = "PLAY AGAIN";
+    }
+
+    /*
+        MAIN GAME LOOP
+    */
+    function gameLoop(time) {
+
+        if (!gameRunning) return;
+
+        const deltaTime = (time - lastTime) / 16.67;
+
+        lastTime = time;
+
+        /*
+            PLAYER PHYSICS
+        */
+
+        velocityY -= gravity * deltaTime;
+
+        playerY += velocityY * deltaTime;
+
+        if (playerY < 0) {
+            playerY = 0;
+            velocityY = 0;
+        }
+
+        player.style.transform =
+            "translateY(" + (-playerY) + "px)";
+
+        /*
+            OBSTACLES
+        */
+
+        obstacleTimer -= deltaTime;
+
+        if (obstacleTimer <= 0) {
+
+            createObstacle();
+
+            obstacleTimer =
+                80 + Math.random() * 70;
+        }
+
+        obstacles.forEach((obstacle, index) => {
+
+            obstacle.x -= gameSpeed * deltaTime;
+
+            obstacle.element.style.left =
+                obstacle.x + "px";
+
+            /*
+                Remove obstacle after leaving screen
+            */
+
+            if (obstacle.x < -100) {
+
+                obstacle.element.remove();
+
+                obstacles.splice(index, 1);
+
+                score += 10;
+
+                scoreText.textContent =
+                    "Score: " + Math.floor(score);
+            }
+
+        });
+
+        /*
+            COLLISION
+        */
+
+        const playerRect =
+            player.getBoundingClientRect();
+
+        for (let obstacle of obstacles) {
+
+            const obstacleRect =
+                obstacle.element.getBoundingClientRect();
+
+            if (checkCollision(playerRect, obstacleRect)) {
+
+                gameOver();
+
+                return;
+            }
+        }
+
+        /*
+            GAME SPEED INCREASE
+        */
+
+        if (score > 0 && score % 100 === 0) {
+            gameSpeed += 0.01;
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    /*
+        KEYBOARD CONTROL
+    */
+
+    document.addEventListener("keydown", function(event) {
+
+        if (
+            event.code === "Space" ||
+            event.code === "ArrowUp"
+        ) {
+
+            event.preventDefault();
+
+            jump();
+        }
+
+    });
+
+    /*
+        MOBILE CONTROL
+    */
+
+    jumpButton.addEventListener("touchstart", function(event) {
+
+        event.preventDefault();
+
+        jump();
+
+    });
+
+    /*
+        START BUTTON
+    */
+
+    startButton.addEventListener("click", function() {
+
+        startGame();
+
+    });
+
+</script>
+
+</body>
+</html>
