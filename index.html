@@ -1,501 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ur">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Runner Game</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DARKWARD Celebration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif;background:#080414}
+#game{
+  position:relative;width:100%;height:100vh;overflow:hidden;
+  background:linear-gradient(#10052d 0%,#25064b 45%,#5b174d 68%,#160d22 100%);
+}
+#skyGlow{position:absolute;inset:0;background:radial-gradient(circle at 50% 48%,rgba(255,180,70,.35),transparent 42%);pointer-events:none}
+#title{
+ position:absolute;top:18px;left:50%;transform:translateX(-50%);
+ z-index:30;color:#ffd76a;font-size:clamp(28px,7vw,62px);font-weight:900;
+ letter-spacing:7px;text-shadow:0 0 8px #ff9d00,0 0 25px #ff6a00;
+}
+#road{
+ position:absolute;left:50%;bottom:-8%;transform:translateX(-50%);
+ width:115%;height:72%;background:linear-gradient(90deg,#241b2c,#5d4350 50%,#241b2c);
+ clip-path:polygon(32% 0,68% 0,100% 100%,0 100%);
+}
+#roadLine{
+ position:absolute;left:50%;bottom:-5%;transform:translateX(-50%);
+ width:7px;height:72%;background:repeating-linear-gradient(to bottom,#ffdca0 0 45px,transparent 45px 90px);
+ opacity:.65;
+}
+#wall{
+ position:absolute;z-index:8;left:50%;top:39%;transform:translate(-50%,-50%);
+ width:min(88vw,850px);height:min(34vh,260px);
+ border:10px solid #3a2430;border-radius:18px;
+ background:linear-gradient(#3d2634,#211725);
+ box-shadow:0 0 35px #ff8c00, inset 0 0 35px #000;
+}
+#wall:before{
+ content:"";position:absolute;inset:12px;border:3px solid #e3a84d;border-radius:8px;opacity:.8;
+}
+#darkward{
+ position:absolute;z-index:10;left:50%;top:50%;transform:translate(-50%,-50%);
+ white-space:nowrap;font-size:clamp(32px,9vw,100px);font-weight:1000;letter-spacing:clamp(3px,1vw,12px);
+ color:#ffd76a;text-shadow:0 0 5px #fff0a8,0 0 15px #ff9d00,0 0 35px #ff4d00;
+}
+#crown{position:absolute;left:50%;top:-32px;transform:translateX(-50%);font-size:55px;z-index:12}
+#runner{
+ position:absolute;z-index:15;left:50%;bottom:8%;transform:translateX(-50%);
+ width:52px;height:90px;background:#17131e;border-radius:25px 25px 12px 12px;
+ transition:left .18s;
+}
+#runner:before{
+ content:"";position:absolute;width:43px;height:43px;left:4px;top:-36px;border-radius:50%;background:#d69a72;
+}
+.leg{position:absolute;width:15px;height:48px;background:#111;bottom:-36px;border-radius:10px}
+.leg.l{left:7px;transform:rotate(8deg)}.leg.r{right:7px;transform:rotate(-8deg)}
+.arm{position:absolute;width:12px;height:48px;background:#17131e;top:18px;border-radius:10px}
+.arm.l{left:-10px;transform:rotate(18deg)}.arm.r{right:-10px;transform:rotate(-18deg)}
+.running .leg.l{animation:runL .25s infinite alternate}.running .leg.r{animation:runR .25s infinite alternate}
+@keyframes runL{to{transform:rotate(-25deg) translateY(-5px)}}@keyframes runR{to{transform:rotate(25deg) translateY(-5px)}}
+.dancing{animation:dance .38s infinite alternate}
+@keyframes dance{from{transform:translateX(-50%) rotate(-8deg) translateY(0)}to{transform:translateX(-50%) rotate(8deg) translateY(-10px)}}
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+.crowd{position:absolute;z-index:12;bottom:0;width:100%;height:25%;display:flex;justify-content:space-around;align-items:flex-end}
+.person{width:30px;height:80px;background:#191521;border-radius:18px 18px 3px 3px;position:relative}
+.person:before{content:"";position:absolute;width:25px;height:25px;background:#c98569;border-radius:50%;top:-19px;left:3px}
+.person:nth-child(2n){height:105px}.person:nth-child(3n){height:65px}
+.person{animation:cheer .55s infinite alternate}
+.person:nth-child(2n){animation-delay:.2s}.person:nth-child(3n){animation-delay:.35s}
+@keyframes cheer{to{transform:translateY(-10px) rotate(5deg)}}
 
-        body {
-            background: #111;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-
-        #game {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            min-height: 400px;
-            overflow: hidden;
-            background: linear-gradient(
-                to bottom,
-                #87ceeb 0%,
-                #cceeff 65%,
-                #8fd16a 65%,
-                #6dbb4d 100%
-            );
-        }
-
-        /* Sky decoration */
-        .cloud {
-            position: absolute;
-            width: 100px;
-            height: 35px;
-            background: white;
-            border-radius: 50px;
-            opacity: 0.8;
-        }
-
-        .cloud::before,
-        .cloud::after {
-            content: "";
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-        }
-
-        .cloud::before {
-            width: 45px;
-            height: 45px;
-            left: 15px;
-            top: -20px;
-        }
-
-        .cloud::after {
-            width: 55px;
-            height: 55px;
-            right: 10px;
-            top: -25px;
-        }
-
-        .cloud-1 {
-            top: 15%;
-            left: 10%;
-        }
-
-        .cloud-2 {
-            top: 25%;
-            left: 65%;
-            transform: scale(0.7);
-        }
-
-        /* Game area */
-        #ground {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 35%;
-            border-top: 5px solid #4d8e35;
-        }
-
-        #player {
-            position: absolute;
-            left: 12%;
-            bottom: 35%;
-            width: 45px;
-            height: 60px;
-            background: #e63946;
-            border-radius: 12px 12px 8px 8px;
-            z-index: 5;
-        }
-
-        #player::before {
-            content: "";
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            background: #ffd6a5;
-            border-radius: 50%;
-            top: -25px;
-            left: 8px;
-        }
-
-        #player::after {
-            content: "";
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: #111;
-            border-radius: 50%;
-            top: -12px;
-            right: 10px;
-        }
-
-        /* Obstacle */
-        .obstacle {
-            position: absolute;
-            bottom: 35%;
-            width: 35px;
-            height: 55px;
-            background: #333;
-            border-radius: 6px;
-            z-index: 4;
-        }
-
-        /* Score */
-        #score {
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            font-size: 24px;
-            font-weight: bold;
-            color: #111;
-            z-index: 10;
-        }
-
-        #title {
-            position: absolute;
-            top: 20px;
-            left: 25px;
-            font-size: 24px;
-            font-weight: bold;
-            color: #111;
-            z-index: 10;
-        }
-
-        /* Start/Game Over screen */
-        #screen {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.45);
-            z-index: 20;
-        }
-
-        .panel {
-            text-align: center;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            min-width: 280px;
-        }
-
-        .panel h1 {
-            margin-bottom: 15px;
-        }
-
-        .panel p {
-            margin-bottom: 20px;
-            color: #555;
-        }
-
-        button {
-            border: none;
-            padding: 12px 25px;
-            background: #e63946;
-            color: white;
-            font-size: 17px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #c92f3b;
-        }
-
-        /* Mobile controls */
-        #jumpButton {
-            position: absolute;
-            bottom: 25px;
-            right: 25px;
-            z-index: 15;
-            padding: 15px 25px;
-            border-radius: 50px;
-            background: rgba(0, 0, 0, 0.65);
-            color: white;
-            border: 2px solid white;
-            font-weight: bold;
-        }
-
-        @media (min-width: 800px) {
-            #jumpButton {
-                display: none;
-            }
-        }
-    </style>
+#controls{position:absolute;z-index:40;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:10px}
+button{
+ border:2px solid #ffd76a;background:rgba(20,8,30,.82);color:#fff;
+ padding:13px 24px;border-radius:30px;font-size:17px;font-weight:bold;
+ box-shadow:0 0 15px rgba(255,170,50,.4);touch-action:manipulation;
+}
+#start{
+ position:absolute;z-index:50;inset:0;display:flex;align-items:center;justify-content:center;
+ background:rgba(5,1,12,.65)
+}
+.panel{text-align:center;background:rgba(25,9,34,.94);border:2px solid #d89a40;border-radius:22px;padding:30px 24px;max-width:90%}
+.panel h2{color:#ffd76a;font-size:38px;margin-bottom:10px}.panel p{color:#fff;margin-bottom:20px}
+#celebrate{display:none;position:absolute;z-index:35;inset:0;pointer-events:none}
+.celebrate #celebrate{display:block}
+.firework{position:absolute;font-size:55px;animation:boom .8s infinite}
+.f1{left:8%;top:16%}.f2{right:8%;top:13%;animation-delay:.25s}.f3{left:45%;top:8%;animation-delay:.5s}
+@keyframes boom{0%,100%{transform:scale(.55);opacity:.5}50%{transform:scale(1.25);opacity:1}}
+.petals{position:absolute;inset:0;overflow:hidden}
+.petal{position:absolute;top:-30px;font-size:24px;animation:fall 4s linear infinite}
+@keyframes fall{to{transform:translateY(115vh) rotate(360deg)}}
+.hint{font-size:13px;color:#d8c5d8;margin-top:10px}
+</style>
 </head>
-
 <body>
-
 <div id="game">
+  <div id="skyGlow"></div>
+  <div id="title">DARKWARD</div>
+  <div id="road"></div><div id="roadLine"></div>
 
-    <div class="cloud cloud-1"></div>
-    <div class="cloud cloud-2"></div>
+  <div id="wall">
+    <div id="crown">👑</div>
+    <div id="darkward">DARKWARD</div>
+  </div>
 
-    <div id="title">RUNNER</div>
-    <div id="score">Score: 0</div>
+  <div id="runner" class="running">
+    <div class="arm l"></div><div class="arm r"></div>
+    <div class="leg l"></div><div class="leg r"></div>
+  </div>
 
-    <div id="player"></div>
+  <div class="crowd">
+    <div class="person"></div><div class="person"></div><div class="person"></div>
+    <div class="person"></div><div class="person"></div><div class="person"></div>
+    <div class="person"></div><div class="person"></div><div class="person"></div>
+  </div>
 
-    <div id="ground"></div>
+  <div id="celebrate">
+    <div class="firework f1">🎆</div><div class="firework f2">🎇</div><div class="firework f3">🎆</div>
+    <div class="petals" id="petals"></div>
+  </div>
 
-    <button id="jumpButton">JUMP</button>
+  <div id="controls">
+    <button id="left">⬅️ LEFT</button>
+    <button id="dance">💃 DANCE</button>
+    <button id="right">RIGHT ➡️</button>
+  </div>
 
-    <div id="screen">
-        <div class="panel">
-            <h1 id="screenTitle">Runner Game</h1>
-            <p id="screenText">
-                Press Start and jump over the obstacles.
-            </p>
-            <button id="startButton">START GAME</button>
-        </div>
+  <div id="start">
+    <div class="panel">
+      <h2>DARKWARD</h2>
+      <p>Celebration شروع کرنے کے لیے START دبائیں</p>
+      <button id="startBtn">START</button>
+      <div class="hint">شروع ہوتے ہی اینیمی DARKWARD کی دیوار تک پہنچے گا۔</div>
     </div>
-
+  </div>
 </div>
 
 <script>
-
-    const game = document.getElementById("game");
-    const player = document.getElementById("player");
-    const scoreText = document.getElementById("score");
-
-    const screen = document.getElementById("screen");
-    const screenTitle = document.getElementById("screenTitle");
-    const screenText = document.getElementById("screenText");
-    const startButton = document.getElementById("startButton");
-    const jumpButton = document.getElementById("jumpButton");
-
-    let gameRunning = false;
-    let score = 0;
-
-    let playerY = 0;
-    let velocityY = 0;
-
-    let gravity = 0.8;
-    let jumpPower = 15;
-
-    let gameSpeed = 6;
-
-    let obstacleTimer = 0;
-    let lastTime = 0;
-
-    let obstacles = [];
-
-    /*
-        START GAME
-    */
-    function startGame() {
-
-        gameRunning = true;
-
-        score = 0;
-        playerY = 0;
-        velocityY = 0;
-
-        gameSpeed = 6;
-        obstacleTimer = 0;
-
-        scoreText.textContent = "Score: 0";
-
-        obstacles.forEach(obstacle => obstacle.remove());
-        obstacles = [];
-
-        screen.style.display = "none";
-
-        lastTime = performance.now();
-
-        requestAnimationFrame(gameLoop);
-    }
-
-    /*
-        PLAYER JUMP
-    */
-    function jump() {
-
-        if (!gameRunning) return;
-
-        if (playerY === 0) {
-            velocityY = jumpPower;
-        }
-    }
-
-    /*
-        CREATE OBSTACLE
-    */
-    function createObstacle() {
-
-        const obstacle = document.createElement("div");
-
-        obstacle.className = "obstacle";
-
-        obstacle.style.left = game.offsetWidth + "px";
-
-        game.appendChild(obstacle);
-
-        obstacles.push({
-            element: obstacle,
-            x: game.offsetWidth
-        });
-    }
-
-    /*
-        COLLISION CHECK
-    */
-    function checkCollision(playerRect, obstacleRect) {
-
-        return !(
-            playerRect.right < obstacleRect.left ||
-            playerRect.left > obstacleRect.right ||
-            playerRect.bottom < obstacleRect.top ||
-            playerRect.top > obstacleRect.bottom
-        );
-    }
-
-    /*
-        GAME OVER
-    */
-    function gameOver() {
-
-        gameRunning = false;
-
-        screen.style.display = "flex";
-
-        screenTitle.textContent = "Game Over";
-
-        screenText.textContent =
-            "Your score: " + Math.floor(score);
-
-        startButton.textContent = "PLAY AGAIN";
-    }
-
-    /*
-        MAIN GAME LOOP
-    */
-    function gameLoop(time) {
-
-        if (!gameRunning) return;
-
-        const deltaTime = (time - lastTime) / 16.67;
-
-        lastTime = time;
-
-        /*
-            PLAYER PHYSICS
-        */
-
-        velocityY -= gravity * deltaTime;
-
-        playerY += velocityY * deltaTime;
-
-        if (playerY < 0) {
-            playerY = 0;
-            velocityY = 0;
-        }
-
-        player.style.transform =
-            "translateY(" + (-playerY) + "px)";
-
-        /*
-            OBSTACLES
-        */
-
-        obstacleTimer -= deltaTime;
-
-        if (obstacleTimer <= 0) {
-
-            createObstacle();
-
-            obstacleTimer =
-                80 + Math.random() * 70;
-        }
-
-        obstacles.forEach((obstacle, index) => {
-
-            obstacle.x -= gameSpeed * deltaTime;
-
-            obstacle.element.style.left =
-                obstacle.x + "px";
-
-            /*
-                Remove obstacle after leaving screen
-            */
-
-            if (obstacle.x < -100) {
-
-                obstacle.element.remove();
-
-                obstacles.splice(index, 1);
-
-                score += 10;
-
-                scoreText.textContent =
-                    "Score: " + Math.floor(score);
-            }
-
-        });
-
-        /*
-            COLLISION
-        */
-
-        const playerRect =
-            player.getBoundingClientRect();
-
-        for (let obstacle of obstacles) {
-
-            const obstacleRect =
-                obstacle.element.getBoundingClientRect();
-
-            if (checkCollision(playerRect, obstacleRect)) {
-
-                gameOver();
-
-                return;
-            }
-        }
-
-        /*
-            GAME SPEED INCREASE
-        */
-
-        if (score > 0 && score % 100 === 0) {
-            gameSpeed += 0.01;
-        }
-
-        requestAnimationFrame(gameLoop);
-    }
-
-    /*
-        KEYBOARD CONTROL
-    */
-
-    document.addEventListener("keydown", function(event) {
-
-        if (
-            event.code === "Space" ||
-            event.code === "ArrowUp"
-        ) {
-
-            event.preventDefault();
-
-            jump();
-        }
-
-    });
-
-    /*
-        MOBILE CONTROL
-    */
-
-    jumpButton.addEventListener("touchstart", function(event) {
-
-        event.preventDefault();
-
-        jump();
-
-    });
-
-    /*
-        START BUTTON
-    */
-
-    startButton.addEventListener("click", function() {
-
-        startGame();
-
-    });
-
+const runner=document.getElementById('runner');
+const start=document.getElementById('start');
+const celebrate=document.getElementById('celebrate');
+const petals=document.getElementById('petals');
+let started=false, x=50;
+
+function move(dir){
+  if(!started) return;
+  x=Math.max(25,Math.min(75,x+dir*8));
+  runner.style.left=x+'%';
+}
+document.getElementById('left').addEventListener('click',()=>move(-1));
+document.getElementById('right').addEventListener('click',()=>move(1));
+
+function makePetals(){
+  petals.innerHTML='';
+  for(let i=0;i<45;i++){
+    const p=document.createElement('span');
+    p.className='petal';
+    p.textContent=['🌸','🌺','🌼','🌷'][Math.floor(Math.random()*4)];
+    p.style.left=Math.random()*100+'%';
+    p.style.animationDelay=(Math.random()*3)+'s';
+    p.style.animationDuration=(3+Math.random()*3)+'s';
+    petals.appendChild(p);
+  }
+}
+
+function celebration(){
+  runner.classList.remove('running');
+  runner.classList.add('dancing');
+  celebrate.classList.add('show');
+  makePetals();
+  document.getElementById('celebrate').style.display='block';
+}
+
+document.getElementById('dance').addEventListener('click',()=>{
+  if(started) celebration();
+});
+
+document.getElementById('startBtn').addEventListener('click',()=>{
+  started=true;
+  start.style.display='none';
+  runner.classList.add('running');
+  // پہلے اینیمی سامنے موجود DARKWARD دیوار کی طرف پہنچتا ہے
+  setTimeout(celebration,3500);
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft') move(-1);
+  if(e.key==='ArrowRight') move(1);
+  if(e.code==='Space' && started) celebration();
+});
 </script>
-
 </body>
 </html>
