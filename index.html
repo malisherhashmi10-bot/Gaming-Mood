@@ -37,7 +37,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif;ba
 #wall:before{
  content:"";position:absolute;inset:12px;border:3px solid #e3a84d;border-radius:8px;opacity:.8;
 }
-#darkward{
+#darkhacker{
  position:absolute;z-index:10;left:50%;top:50%;transform:translate(-50%,-50%);
  white-space:nowrap;font-size:clamp(32px,9vw,100px);font-weight:1000;letter-spacing:clamp(3px,1vw,12px);
  color:#ffd76a;text-shadow:0 0 5px #fff0a8,0 0 15px #ff9d00,0 0 35px #ff4d00;
@@ -94,12 +94,12 @@ button{
 <body>
 <div id="game">
   <div id="skyGlow"></div>
-  <div id="title">DARKWARD</div>
+  <div id="title">DARK-HACKER</div>
   <div id="road"></div><div id="roadLine"></div>
 
   <div id="wall">
     <div id="crown">👑</div>
-    <div id="darkward">DARKWARD</div>
+    <div id="darkward">DARK-HACKER</div>
   </div>
 
   <div id="runner" class="running">
@@ -119,17 +119,17 @@ button{
   </div>
 
   <div id="controls">
-    <button id="left">⬅️ LEFT</button>
+    <button id="left">😘 LEFT</button>
     <button id="dance">💃 DANCE</button>
-    <button id="right">RIGHT ➡️</button>
+    <button id="right">RIGHT 🥰</button>
   </div>
 
   <div id="start">
     <div class="panel">
-      <h2>DARKWARD</h2>
+      <h2>DARK-HACKER</h2>
       <p>Celebration شروع کرنے کے لیے START دبائیں</p>
       <button id="startBtn">START</button>
-      <div class="hint">شروع ہوتے ہی اینیمی DARKWARD کی دیوار تک پہنچے گا۔</div>
+      <div class="hint">شروع ہوتے ہی اینیمی DARK-HACKER کی دیوار تک پہنچے گا۔</div>
     </div>
   </div>
 </div>
@@ -154,7 +154,7 @@ function makePetals(){
   for(let i=0;i<45;i++){
     const p=document.createElement('span');
     p.className='petal';
-    p.textContent=['🌸','🌺','🌼','🌷'][Math.floor(Math.random()*4)];
+    p.textContent=['🌸','🌺','😍','😎','😇','🤩','🥹','😘','🫂','🌼','🌷'][Math.floor(Math.random()*4)];
     p.style.left=Math.random()*100+'%';
     p.style.animationDelay=(Math.random()*3)+'s';
     p.style.animationDuration=(3+Math.random()*3)+'s';
@@ -178,7 +178,7 @@ document.getElementById('startBtn').addEventListener('click',()=>{
   started=true;
   start.style.display='none';
   runner.classList.add('running');
-  // پہلے اینیمی سامنے موجود DARKWARD دیوار کی طرف پہنچتا ہے
+  // پہلے اینیمی سامنے موجود DARK-HACKER دیوار کی طرف پہنچتا ہے
   setTimeout(celebration,3500);
 });
 
